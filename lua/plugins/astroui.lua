@@ -21,6 +21,18 @@ return {
         EndOfBuffer = { bg = "#020203" },
         NeoTreeNormal = { bg = "#020203" },
         NeoTreeNormalNC = { bg = "#020203" },
+
+        -- Main Picker Backgrounds
+        SnacksPicker = { bg = "#020203" },
+        SnacksPickerBorder = { fg = "#333333", bg = "#020203" },
+
+        -- Preview Window Backgrounds
+        SnacksPickerPreview = { bg = "#020203" },
+        SnacksPickerPreviewBorder = { fg = "#333333", bg = "#020203" },
+
+        -- Input/Search Bar Backgrounds
+        SnacksPickerInput = { bg = "#020203" },
+        SnacksPickerInputBorder = { fg = "#333333", bg = "#020203" },
       },
       astrodark = { -- a table of overrides/changes when applying the astrotheme theme
         -- Normal = { bg = "#000000" },

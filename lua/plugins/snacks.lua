@@ -11,7 +11,7 @@ return {
           default = {
             layout = {
               width = 0.99,
-              height = 0.96,
+              height = 0.99,
             },
           },
         },
