@@ -1,9 +1,48 @@
 ---@type LazySpec
+-- Helpers for the custom Git and Python workflow mappings below.
+local function open_terminal(command)
+  vim.cmd("botright 12split")
+  vim.cmd("terminal " .. command)
+  vim.cmd("startinsert")
+end
+
+local function run_python(debug)
+  local file = vim.fn.expand("%:p")
+
+  if file == "" or vim.fn.filereadable(file) == 0 then
+    vim.notify("No readable file to run", vim.log.levels.WARN)
+    return
+  end
+
+  vim.cmd("write")
+
+  local command = debug and "python3 -m pdb " or "python3 "
+  open_terminal(command .. vim.fn.shellescape(file))
+end
+
+local function run_git(command)
+  open_terminal("git " .. command)
+end
+
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
   opts = {
     -- Configure core features of AstroNvim
+    on_keys = {
+      auto_hlsearch = false,
+    },
+    autocmds = {
+      search_highlight = {
+        {
+          event = "VimEnter",
+          desc = "Enable persistent search highlighting",
+          callback = function()
+            vim.opt.hlsearch = true
+          end,
+        },
+      },
+    },
     features = {
       large_buf = { size = 1024 * 256, lines = 10000 }, -- set global limits for large files for disabling features like treesitter
       autopairs = true, -- enable autopairs at start
@@ -63,6 +102,7 @@ return {
         -- Search
         ignorecase = true,
         smartcase = true,
+        hlsearch = true,
 
         -- UI
         signcolumn = "yes",
@@ -97,6 +137,116 @@ return {
       n = {
         -- second key is the lefthand side of the map
 
+        -- Git workflow: align with IdeaVim
+        -- "<Leader>gb" already is git branches. Do not change
+        -- "<Leader>gc" is already git list of commits in repository. Do not change
+        -- "<Leader>gC" is already git list of commits in current file. Do not change
+        -- "<Leader>gS" is already Stage git Buffer. Do not change
+        -- "<Leader>gp" is already Preview git Hunk. Do not change
+        ["<Leader>gm"] = {
+          function() run_git("commit") end,
+          desc = "Git commit staged changes",
+        },
+        ["<Leader>gf"] = {
+          function() run_git("fetch") end,
+          desc = "Git fetch",
+        },
+        ["<Leader>gu"] = {
+          function() run_git("pull") end,
+          desc = "Git pull",
+        },
+        ["<Leader>gP"] = {
+          function() run_git("push") end,
+          desc = "Git push",
+        },
+
+        -- Python workflow: align with IdeaVim
+        ["<Leader>rr"] = {
+          function() run_python(false) end,
+          desc = "Run current Python file",
+        },
+        ["<Leader>rd"] = {
+          function() run_python(true) end,
+          desc = "Debug current Python file with pdb",
+        },
+
+        -- Run/debug Python with command-line arguments
+        ["<Leader>rR"] = {
+          function()
+            local args = vim.fn.input("Python arguments: ")
+            if args == nil then return end
+
+            local file = vim.fn.expand("%:p")
+            if file == "" or vim.fn.filereadable(file) == 0 then
+              vim.notify("No readable file to run", vim.log.levels.WARN)
+              return
+            end
+
+            vim.cmd("write")
+            open_terminal(
+              "python3 " .. vim.fn.shellescape(file) .. " " .. args
+            )
+          end,
+          desc = "Run Python with arguments",
+        },
+
+        ["<Leader>rD"] = {
+          function()
+            local args = vim.fn.input("Python debug arguments: ")
+            if args == nil then return end
+
+            local file = vim.fn.expand("%:p")
+            if file == "" or vim.fn.filereadable(file) == 0 then
+              vim.notify("No readable file to debug", vim.log.levels.WARN)
+              return
+            end
+
+            vim.cmd("write")
+            open_terminal(
+              "python3 -m pdb " .. vim.fn.shellescape(file) .. " " .. args
+            )
+          end,
+          desc = "Debug Python with arguments",
+        },
+
+        -- Pytest workflow
+        ["<Leader>rt"] = {
+          function()
+            local file = vim.fn.expand("%:p")
+            if file == "" or vim.fn.filereadable(file) == 0 then
+              vim.notify("No readable test file", vim.log.levels.WARN)
+              return
+            end
+
+            vim.cmd("write")
+            open_terminal("python3 -m pytest " .. vim.fn.shellescape(file))
+          end,
+          desc = "Pytest current file",
+        },
+
+        ["<Leader>rT"] = {
+          function()
+            local args = vim.fn.input("Pytest arguments: ")
+            if args == nil then return end
+
+            vim.cmd("write")
+            open_terminal("python3 -m pytest " .. args)
+          end,
+          desc = "Pytest with arguments",
+        },
+
+        -- Open terminal
+        ["<Leader>tp"] = {
+          function() open_terminal(vim.o.shell) end,
+          desc = "Open terminal",
+        },
+
+        -- Clear search highlights
+        ["<Esc>"] = {
+          "<cmd>nohlsearch<cr>",
+          desc = "Clear search highlights",
+        },
+
         -- navigate buffer tabs
         ["ñt"] = { function() require("astrocore.buffer").nav(vim.v.count1) end, desc = "Next buffer" },
         ["ñr"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Previous buffer" },
@@ -125,24 +275,6 @@ return {
         ["<C-u>"] = {
           "<C-u>zz",
           desc = "Scroll up and center",
-        },
-
-        -- Tabs
-        ["<Leader>to"] = {
-          "<cmd>tabnew<cr>",
-          desc = "Open new tab",
-        },
-        ["<Leader>tx"] = {
-          "<cmd>tabclose<cr>",
-          desc = "Close current tab",
-        },
-        ["<Leader>tn"] = {
-          "<cmd>tabnext<cr>",
-          desc = "Next tab",
-        },
-        ["<Leader>tp"] = {
-          "<cmd>tabprevious<cr>",
-          desc = "Previous tab",
         },
 
         -- Delete without yanking
@@ -238,6 +370,15 @@ return {
           desc = "Trigger completion",
         },
       },
+
+      -- Terminal mode
+      t = {
+        ["<Esc>"] = {
+          [[<C-\><C-n>]],
+          desc = "Terminal normal mode",
+        },
+      },
+
     },
   },
 }
