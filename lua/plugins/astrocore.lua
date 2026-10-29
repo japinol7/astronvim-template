@@ -174,7 +174,10 @@ return {
         ["<Leader>rR"] = {
           function()
             local args = vim.fn.input("Python arguments: ")
-            if args == nil then return end
+            if args == nil or args == "" then
+                vim.notify("You must enter at least one argument", vim.log.levels.WARN)
+                return
+            end
 
             local file = vim.fn.expand("%:p")
             if file == "" or vim.fn.filereadable(file) == 0 then
@@ -193,7 +196,10 @@ return {
         ["<Leader>rD"] = {
           function()
             local args = vim.fn.input("Python debug arguments: ")
-            if args == nil then return end
+            if args == nil or args == "" then
+                vim.notify("You must enter at least one argument", vim.log.levels.WARN)
+                return
+            end
 
             local file = vim.fn.expand("%:p")
             if file == "" or vim.fn.filereadable(file) == 0 then
@@ -227,7 +233,10 @@ return {
         ["<Leader>rT"] = {
           function()
             local args = vim.fn.input("Pytest arguments: ")
-            if args == nil then return end
+            if args == nil or args == "" then
+                vim.notify("You must enter at least one argument", vim.log.levels.WARN)
+                return
+            end
 
             vim.cmd("write")
             open_terminal("python3 -m pytest " .. args)
