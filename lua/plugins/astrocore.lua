@@ -125,6 +125,42 @@ local function run_git(command)
   open_terminal({ "git", command })
 end
 
+-- Run Ruff formatting or import organization on the current Python file.
+local function run_ruff(mode)
+  local file = vim.fn.expand("%:p")
+
+  if file == "" or not file:match("%.py$") then
+    vim.notify("Current file must have a .py extension", vim.log.levels.WARN)
+    return
+  end
+
+  if vim.fn.filereadable(file) == 0 then
+    vim.notify("Current file is not readable", vim.log.levels.WARN)
+    return
+  end
+
+  if vim.fn.executable("ruff") ~= 1 then
+    vim.notify("Ruff executable not found in PATH", vim.log.levels.ERROR)
+    return
+  end
+
+  vim.cmd("write")
+
+  if mode == "format" then
+    open_terminal({ "ruff", "format", "--line-length", "88", file })
+  elseif mode == "format_preserve" then
+    -- Preserve quotes and use an 88-character line length.
+    open_terminal({
+      "ruff", "format",
+      "--config", "format.quote-style='preserve'",
+      "--line-length", "88",
+      file,
+    })
+  elseif mode == "imports" then
+    open_terminal({ "ruff", "check", "--select", "I", "--fix", file })
+  end
+end
+
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -261,6 +297,20 @@ return {
           desc = "Git push",
         },
 
+        -- Python workflow: Ruff
+        ["<Leader>cF"] = {
+          function() run_ruff("format") end,
+          desc = "Format Python file (project config)",
+        },
+        ["<Leader>cf"] = {
+          function() run_ruff("format_preserve") end,
+          desc = "Format Python file preserving quotes",
+        },
+        ["<Leader>ci"] = {
+          function() run_ruff("imports") end,
+          desc = "Optimize Python imports with Ruff",
+        },
+
         -- Python workflow: align with IdeaVim
         ["<Leader>rr"] = {
           function() run_python("run", false) end,
@@ -364,10 +414,36 @@ return {
           "<C-r>",
           desc = "Redo",
         },
+
+        -- Close current buffer
+        ["<Leader>bx"] = {
+          function()
+            require("astrocore.buffer").close(vim.api.nvim_get_current_buf())
+          end,
+          desc = "Close current buffer",
+        },
+
+        -- Code - do nothing
+        ["<Leader>c"] = {
+          "",
+          desc = "Code stuff",
+        },
+
+        -- Code - do nothing
+        ["<Leader>C"] = {
+          "",
+          desc = "Code - do nothing",
+        },
       },
 
       -- Visual mode
       x = {
+        -- Ruff formatting (formats the entire Python file)
+        ["<Leader>cf"] = {
+          function() run_ruff("format_preserve") end,
+          desc = "Format Python file preserving quotes",
+        },
+
         -- Move selected lines
         ["<A-j>"] = {
           ":m '>+1<cr>gv=gv",
