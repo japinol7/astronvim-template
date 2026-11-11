@@ -59,12 +59,13 @@ return {
           string = "#83CD71",
           keyword = "#F6760A",
           func = "#EEE85A",
+          func_call = "#2AA2E8",
           constant = "#CA72FC",
           field = "#BF75EE",
           parameter = "#33D7B4",
           number = "#5BADEC",
           builtin = "#7676F5",
-          type = "#9C9CE3",
+          type = "#08B8DB",
           cyan = "#40C2D9",
           blue = "#2AA2E8",
           purple = "#CA72FC",
@@ -149,17 +150,17 @@ return {
         -- Tree-sitter captures (Lua, Python, Rust, JS/TS, etc.)
         hl["@comment"] = { fg = c.comment }
         hl["@string"] = { fg = c.string }
-        hl["@string.documentation"] = { fg = c.comment }
+        hl["@string.documentation"] = { fg = c.string }
         hl["@character"] = { fg = c.string }
         hl["@number"] = { fg = c.number }
         hl["@boolean"] = { fg = c.constant }
         hl["@constant"] = { fg = c.constant }
         hl["@constant.builtin"] = { fg = c.builtin }
         hl["@function"] = { fg = c.func }
-        hl["@function.call"] = { fg = c.func }
+        hl["@function.call"] = { fg = c.func_call }
         hl["@function.builtin"] = { fg = c.builtin }
         hl["@function.method"] = { fg = c.func }
-        hl["@function.method.call"] = { fg = c.func }
+        hl["@function.method.call"] = { fg = c.func_call }
         hl["@method"] = { fg = c.func }
         hl["@keyword"] = { fg = c.keyword }
         hl["@keyword.function"] = { fg = c.keyword }
@@ -168,6 +169,7 @@ return {
         hl["@operator"] = { fg = c.fg }
         hl["@variable"] = { fg = c.fg }
         hl["@variable.builtin"] = { fg = c.magenta }
+        hl["@variable.parameter"] = { fg = c.parameter }
         hl["@parameter"] = { fg = c.parameter }
         hl["@property"] = { fg = c.field }
         hl["@field"] = { fg = c.field }
@@ -175,7 +177,7 @@ return {
         hl["@type"] = { fg = c.type }
         hl["@type.builtin"] = { fg = c.builtin }
         hl["@constructor"] = { fg = c.type }
-        hl["@module"] = { fg = c.cyan }
+        hl["@module"] = { fg = c.fg }
         hl["@namespace"] = { fg = c.cyan }
         hl["@tag"] = { fg = c.magenta }
         hl["@tag.attribute"] = { fg = c.parameter }
